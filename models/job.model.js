@@ -9,7 +9,7 @@ const jobSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    jobPosition: {
+    jobTitle: {
         type: String,
         required: true,
     },
@@ -19,12 +19,15 @@ const jobSchema = new mongoose.Schema({
     },
     jobType: {
         type: Array,
+        default:[],
     },
     remoteOffice: {
         type: Array,
+        default:[],
     },
     location: {
         type: String,
+        default:"Unknown"
     },
     jobDescription: {
         type: String,
@@ -36,11 +39,29 @@ const jobSchema = new mongoose.Schema({
         type: Array,
     },
     addInfo: {
-        type: String
+        type: String,
+    },
+    refUserId:{
+        type:mongoose.Types.ObjectId,
+        required:true,
     }
 
 });
 
+
+
 const Job = mongoose.model("Job", jobSchema);
 
 module.exports = Job;
+
+// companyName,
+// logoUrl,
+// jobTitle,
+// monthlySalary,
+// jobType,
+// remoteOffice,
+// location,
+// jobDescription,
+// aboutComp,
+// skills,
+// addInfo

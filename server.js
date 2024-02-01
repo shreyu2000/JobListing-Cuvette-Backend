@@ -4,6 +4,8 @@ var cors = require('cors')
 const connectDB = require('./config/db.js');
 const app =express();
 const authRoutes = require('./routes/auth.js');
+const jobRoutes = require('./routes/jobs.js');
+
 dotenv.config();
 
 connectDB();
@@ -20,7 +22,8 @@ app.get('/health', (req, res) => {
 
   //login
   //register
-app.use('/api/v1',authRoutes);
+app.use('/api/v1/auth',authRoutes);
+app.use('/api/vi/job' ,jobRoutes);
 
 //edit
 //post 
