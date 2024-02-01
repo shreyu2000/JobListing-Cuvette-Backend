@@ -1,4 +1,5 @@
 const mongoose =require('mongoose');
+//user schema 
 
 const userSchema  = new mongoose.Schema({
     name:{

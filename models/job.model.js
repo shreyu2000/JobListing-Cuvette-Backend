@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+//job details schema
 const jobSchema = new mongoose.Schema({
     companyName: {
         type: String,
