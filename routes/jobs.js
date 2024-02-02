@@ -1,92 +1,36 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const Job = require("../models/user.model");
+const Job = require("../models/job.model.js");
 const jwtVerify = require('../middlewares/authMiddleware.js');
 
-//create job
-router.post("/create", jwtVerify, async (req, res) => {
+
+//create job working
+router.post("/createJob", jwtVerify, async (req, res) => {
   try {
-    const {
-      companyName,
-      logoUrl,
-      jobTitle,
-      monthlySalary,
-      jobType,
-      remoteOffice,
-      location,
-      jobDescription,
-      aboutComp,
-      skills,
-      addInfo,
-    } = req.body;
-
+    const newJob = {...req.body , skillsRequired :req.body.skillsRequired.split(",")}
     //joi
-    if (
-      !companyName ||
-      !logoUrl ||
-      !jobTitle ||
-      !monthlySalary ||
-      !jobType ||
-      !remoteOffice ||
-      !location ||
-      !jobDescription ||
-      !aboutComp ||
-      !skills
-    ) {
-      return res.status(400).json({ error: "Bad Request" });
-    }
-
-    const jobDetails = new Job({
-      companyName,
-      logoUrl,
-      jobTitle,
-      monthlySalary,
-      jobType,
-      remoteOffice,
-      location,
-      jobDescription,
-      aboutComp,
-      skills,
-      addInfo,
+    const createdJob = await Job.create({
+      ...newJob,
       refUserId: req.body.userId,
     });
 
-    await jobDetails.save();
-
-    res.json({ message: "New Job Created Successfully" });
+    res.json({ message: "New Job Created Successfully" , createdJob});
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-//edit job
-
+//edit job  jobid dynamic working
 router.put("/edit/:jobId", jwtVerify, async (req, res) => {
   try {
-    const { companyName, title, description, logoUrl } = req.body;
+   
     const jobId = req.params.jobId;
+    const newJobObj =  {...req.body , skillsRequired :req.body.skillsRequired.split(",")}
 
-    //joi
-    if (!companyName || !title || !logoUrl || !description || !jobId) {
-      return res.status(400).json({ error: "Bad Request" });
-    }
+   const updatedJob= await Job.findByIdAndUpdate(jobId,newJobObj ,{new:true})
 
-    await Job.updateOne(
-      { _id: jobId },
-      {
-        $set: {
-          companyName,
-          title,
-          description,
-          logoUrl,
-        },
-      }
-    );
-
-    res.json({ message: "Job Updated Successfully" });
+    res.json({ message: "Job Details Updated Successfully"  , updatedJob});
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -102,12 +46,10 @@ router.get("/job-description/:jobId", async (req, res) => {
       return res.status(400).json({ error: "Bad Request" });
     }
 
-    const jobDetails = await Job.findById(jobId, {
-      companyName: 1,
-      title: 1,
-    });
+    const jobDetails = await Job.findById({ _id: jobId});
 
     res.json({ data: jobDetails });
+
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -116,36 +58,43 @@ router.get("/job-description/:jobId", async (req, res) => {
 
 router.get("/all", async (req, res) => {
   try {
-    const title = req.query.title || " ";
-    const skills = req.query.skills;
-    const filterSkills = skills?.split(",");
+    // const title = req.query.title || " ";
+    // const skills = req.query.skillsRe
 
-    let filter = {};
+    const {skills , position } =req.query;
+    const filterSkills = skills?.split(",") || [];
 
-    if (filterSkills) {
-      filter = { skills: { $in: filterSkills } };
+    let filter= {};
+
+    if (filterSkills.length !== 0) {
+      filter.skillsRequired = {
+        $in: filterSkills.map((skill) => new RegExp(`^${skill}$`, "i")),
+      };
+    }
+    if (position) {
+      filter.$or = [{ jobPosition: { $regex: position, $options: "i" } }];
     }
 
     console.log("Filter:", filter);
 
     const jobList = await Job.find(
+      filter,
       {
-        title: { $regex: title, $options: "i" },
-        ...filter,
-      },
-      {
-        companyName: 1,
-        title: 1,
-        skills: 1,
+        information: 0,
+        aboutCompany: 0,
+        jobDescription: 0,
       }
     );
     console.log("Job List:", jobList);
 
-    res.json({ data: jobList });
+    res.json({jobList });//to be  visited again
+
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+//delete job
+
 
 module.exports = router;

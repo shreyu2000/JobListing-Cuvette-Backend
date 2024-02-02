@@ -23,7 +23,7 @@ app.get('/health', (req, res) => {
   //login
   //register
 app.use('/api/v1/auth',authRoutes);
-app.use('/api/vi/job' ,jobRoutes);
+app.use('/api/v1/job' ,jobRoutes);
 
 //edit
 //post 

@@ -1,67 +1,55 @@
 const mongoose = require('mongoose');
-//job details schema
-const jobSchema = new mongoose.Schema({
-    companyName: {
-        type: String,
-        required: true,
-    },
-    logoUrl: {
-        type: String,
-        required: true,
-    },
-    jobTitle: {
-        type: String,
-        required: true,
-    },
-    monthlySalary: {
-        type: String,
-        required: true,
-    },
-    jobType: {
-        type: Array,
-        default:[],
-    },
-    remoteOffice: {
-        type: Array,
-        default:[],
-    },
-    location: {
-        type: String,
-        default:"Unknown"
-    },
-    jobDescription: {
-        type: String,
-    },
-    aboutComp: {
-        type: String,
-    },
-    skills: {
-        type: Array,
-    },
-    addInfo: {
-        type: String,
-    },
-    refUserId:{
-        type:mongoose.Types.ObjectId,
-        required:true,
-    }
 
+const JOB_TYPE = ['full-time', 'part-time','internship'];
+const LOCATION_PREFERENCE = ['office', 'remote'];
+
+const jobSchema = new mongoose.Schema({
+    companyName: String,
+    logoUrl: String,
+    jobPosition: String,
+    monthlySalary: String,
+    jobType: {
+        type: String,
+        enum: JOB_TYPE,
+        default: 'full-time',
+    },
+    locationPreference: {
+        type: String,
+        enum: LOCATION_PREFERENCE,
+        default: 'office',
+    },
+    location: String,
+    countryFlag: String,
+    country: String,
+    jobDescription: String,
+    aboutComp: String,
+    companySize: String,
+    jobDuration: String,
+    skillsRequired: [String],
+    information: String,
+    refUserId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+    },
 });
 
-
-
-const Job = mongoose.model("Job", jobSchema);
+const Job = mongoose.model('Job', jobSchema);
 
 module.exports = Job;
 
+
 // companyName,
 // logoUrl,
-// jobTitle,
+// jobPosition,
 // monthlySalary,
 // jobType,
-// remoteOffice,
+//  locationPreference,
 // location,
 // jobDescription,
+//companySize
+//jobDuration
+// skillsRequired,
 // aboutComp,
-// skills,
 // addInfo
+
+
